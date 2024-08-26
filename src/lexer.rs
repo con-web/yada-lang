@@ -1,36 +1,26 @@
-use std::str::FromStr;
 use crate::token::{generate_token_patterns, Token, TokenKind, TokenPattern};
-
+use std::vec::IntoIter;
 
 pub struct Lexer {
-    source: String,
     pos: usize,
     patterns: Vec<TokenPattern>,
-    tokens: Vec<Token>,
 }
 
 impl Lexer {
-    pub fn new(source: String) -> Self {
-        Self {
-            source,
-            pos: 0,
-            patterns: generate_token_patterns(),
-            tokens: vec![],
-        }
-    }
-
-    pub fn tokenize(&mut self) {
-        while self.pos < self.source.len() {
-
+    pub fn tokenize(&mut self, source: &str) -> IntoIter<Token> {
+        let mut tokens = vec![];
+        // todo: count lines and columns for error handling
+        while self.pos < source.len() {
             let mut matched = false;
             for pattern in self.patterns.iter() {
-                match pattern.pattern.find(&self.source[self.pos..]) {
-                    None => {
-                        continue
-                    }
+                match pattern.pattern.find(&source[self.pos..]) {
+                    None => continue,
                     Some(m) => {
-                        self.tokens.push(Token::new(pattern.token_kind, Some(String::from_str(m.as_str()).unwrap())));
-                        self.pos += m.len();
+                        let new_pos = self.pos + m.len();
+                        if pattern.token_kind != TokenKind::WHITESPACE {
+                            tokens.push(Token::new(pattern.token_kind, self.pos..new_pos));
+                        }
+                        self.pos = new_pos;
                         matched = true;
                         break;
                     }
@@ -38,19 +28,29 @@ impl Lexer {
             }
             if !matched {
                 //todo -> proper error handling
-                panic!("😱 no match from {}", &self.source.as_str()[self.pos..])
+                panic!("😱 no match from {}", &source[self.pos..])
             }
         }
-        self.tokens.push(Token::new(TokenKind::EOF, None))
+        tokens.push(Token::new(TokenKind::EOF, self.pos..self.pos));
+        tokens.into_iter()
     }
-
-    pub fn print(&self) {
-        for token in &self.tokens {
-            if token.kind != TokenKind::WhiteSpace{
-                println!("{}", token)
-            }
-
+    
+    pub fn reset_position(&mut self){
+        self.pos = 0;
+    }
+    
+    pub fn tokenize_and_pretty_print(&mut self, source: &str){
+        for token in self.tokenize(source){
+            println!("{:?}: {}", token.kind, &source[token.span])
         }
     }
 }
 
+impl Default for Lexer {
+    fn default() -> Self {
+        Self {
+            pos: 0,
+            patterns: generate_token_patterns(),
+        }
+    }
+}

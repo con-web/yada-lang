@@ -1,198 +1,188 @@
-use std::fmt::{Display, Formatter};
+#![allow(non_camel_case_types)]
+
 use regex::Regex;
+use std::fmt::{Display, Formatter};
+use std::ops::Range;
 
-
-pub struct TokenPattern{
+pub struct TokenPattern {
     pub pattern: Regex,
-    pub token_kind: TokenKind
+    pub token_kind: TokenKind,
 }
 
 impl TokenPattern {
-    pub fn new(pattern: &str, token_kind: TokenKind) -> Self{
-        Self{ pattern: Regex::new(pattern).unwrap(), token_kind }
-    }
-}
-
-pub fn generate_token_patterns() -> Vec<TokenPattern>{
-    vec![
-        // keywords
-        TokenPattern::new(r"^const", TokenKind::Const),
-        TokenPattern::new(r"^var", TokenKind::Var),
-        TokenPattern::new(r"^return", TokenKind::Return),
-        TokenPattern::new(r"^if", TokenKind::If),
-        TokenPattern::new(r"^else", TokenKind::Else),
-        TokenPattern::new(r"^else if", TokenKind::ElseIf),
-        TokenPattern::new(r"^match", TokenKind::Match),
-        TokenPattern::new(r"^while", TokenKind::While),
-        TokenPattern::new(r"^for", TokenKind::For),
-        TokenPattern::new(r"^fn", TokenKind::Fn),
-        TokenPattern::new(r"^struct", TokenKind::Struct),
-        TokenPattern::new(r"^enum", TokenKind::Enum),
-        TokenPattern::new(r"^[a-zA-Z_][a-zA-Z0-9_]*", TokenKind::Ident),
-
-        // literals
-        TokenPattern::new(r"^\/\/.*", TokenKind::Comment),
-        TokenPattern::new(r#"^"[^"]*""#, TokenKind::StringLit),
-        TokenPattern::new(r"^[0-9]*\.[0-9]+", TokenKind::FloatLit),
-        TokenPattern::new(r"^[0-9]+", TokenKind::IntLit),
-
-        // composite operators
-        TokenPattern::new(r"^==", TokenKind::Eq),
-        TokenPattern::new(r"^!=", TokenKind::NotEq),
-        TokenPattern::new(r"^>=", TokenKind::GreaterEq),
-        TokenPattern::new(r"^<=", TokenKind::LessEq),
-
-        TokenPattern::new(r"^\+=", TokenKind::AddAssign),
-        TokenPattern::new(r"^\-=", TokenKind::SubAssign),
-        TokenPattern::new(r"^\/=", TokenKind::DivAssign),
-        TokenPattern::new(r"^\*=", TokenKind::MulAssign),
-        TokenPattern::new(r"^\%=", TokenKind::ModAssign),
-        TokenPattern::new(r"^\*\*=", TokenKind::PowAssign),
-
-        TokenPattern::new(r"^\&=", TokenKind::AndAssign),
-        TokenPattern::new(r"^\|=", TokenKind::OrAssign),
-        TokenPattern::new(r"^\^=", TokenKind::XorAssign),
-
-        TokenPattern::new(r"^\*\*", TokenKind::Pow),
-
-        TokenPattern::new(r"^\->", TokenKind::ReturnsOp),
-
-        // single operators
-        TokenPattern::new(r"^=", TokenKind::Assign),
-
-        TokenPattern::new(r"^\+", TokenKind::Add),
-        TokenPattern::new(r"^\-", TokenKind::Sub),
-        TokenPattern::new(r"^\/", TokenKind::Div),
-        TokenPattern::new(r"^\*", TokenKind::Mul),
-        TokenPattern::new(r"^\%", TokenKind::Mod),
-
-        TokenPattern::new(r"^\&", TokenKind::And),
-        TokenPattern::new(r"^\|", TokenKind::Or),
-        TokenPattern::new(r"^\^", TokenKind::Xor),
-        TokenPattern::new(r"^\!", TokenKind::Not),
-        TokenPattern::new(r"^>", TokenKind::Greater),
-        TokenPattern::new(r"^<", TokenKind::Less),
-
-        // parenthesis
-        TokenPattern::new(r"^\[", TokenKind::BrackL),
-        TokenPattern::new(r"^\]", TokenKind::BrackR),
-        TokenPattern::new(r"^\{", TokenKind::CurlyL),
-        TokenPattern::new(r"^\}", TokenKind::CurlyR),
-        TokenPattern::new(r"^\(", TokenKind::ParenL),
-        TokenPattern::new(r"^\)", TokenKind::ParenR),
-        TokenPattern::new(r"^<", TokenKind::CaretL),
-        TokenPattern::new(r"^>", TokenKind::CaretR),
-
-        // punctuation
-        TokenPattern::new(r"^,", TokenKind::Comma),
-        TokenPattern::new(r"^\.", TokenKind::Dot),
-        TokenPattern::new(r"^:", TokenKind::Colon),
-        TokenPattern::new(r"^;", TokenKind::Semicolon),
-
-        TokenPattern::new(r"^\s+", TokenKind::WhiteSpace),
-
-    ]
-}
-
-#[derive(Debug)]
-pub struct Token{
-    pub(crate) kind: TokenKind,
-    value: Option<String>
-}
-
-impl Display for Token {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-
-        write!(f, "{:?}: {:?}", self.kind, self.value.clone().unwrap_or(String::from("None")))
-    }
-}
-
-impl Token{
-    pub fn new(kind: TokenKind, value: Option<String>) -> Self {
-        Self{
-            kind,
-            value,
+    pub fn new(pattern: &str, token_kind: TokenKind) -> Self {
+        Self {
+            pattern: Regex::new(pattern).unwrap(),
+            token_kind,
         }
     }
 }
 
+pub fn generate_token_patterns() -> Vec<TokenPattern> {
+    vec![
+        // keywords
+        TokenPattern::new(r"^const", TokenKind::CONST_KEYWORD),
+        TokenPattern::new(r"^var", TokenKind::VAR_KEYWORD),
+        TokenPattern::new(r"^return", TokenKind::RETURN_KEYWORD),
+        TokenPattern::new(r"^if", TokenKind::IF_KEYWORD),
+        TokenPattern::new(r"^else", TokenKind::ELSE_KEYWORD),
+        TokenPattern::new(r"^else if", TokenKind::ELSEIF_KEYWORD),
+        TokenPattern::new(r"^match", TokenKind::MATCH_KEYWORD),
+        TokenPattern::new(r"^while", TokenKind::WHILE_KEYWORD),
+        TokenPattern::new(r"^for", TokenKind::FOR_KEYWORD),
+        TokenPattern::new(r"^fn", TokenKind::FN_KEYWORD),
+        TokenPattern::new(r"^struct", TokenKind::STRUCT_KEYWORD),
+        TokenPattern::new(r"^enum", TokenKind::ENUM_KEYWORD),
+        TokenPattern::new(r"^[a-zA-Z_][a-zA-Z0-9_]*", TokenKind::IDENTIFIER),
+        // literals
+        TokenPattern::new(r"^\/\/.*", TokenKind::COMMENT),
+        TokenPattern::new(r#"^"[^"]*""#, TokenKind::STRING_LITERAL),
+        TokenPattern::new(r"^[0-9]*\.[0-9]+", TokenKind::FLOAT_LITERAL),
+        TokenPattern::new(r"^[0-9]+", TokenKind::INT_LITERAL),
+        // composite operators
+        TokenPattern::new(r"^==", TokenKind::EQ),
+        TokenPattern::new(r"^!=", TokenKind::NOT_EQ),
+        TokenPattern::new(r"^>=", TokenKind::GREATER_EQ),
+        TokenPattern::new(r"^<=", TokenKind::LESS_EQ),
+        TokenPattern::new(r"^\+=", TokenKind::ADD_ASSIGN),
+        TokenPattern::new(r"^\-=", TokenKind::SUB_ASSIGN),
+        TokenPattern::new(r"^\/=", TokenKind::DIV_ASSIGN),
+        TokenPattern::new(r"^\*=", TokenKind::MUL_ASSIGN),
+        TokenPattern::new(r"^\%=", TokenKind::MOD_ASSIGN),
+        TokenPattern::new(r"^\*\*=", TokenKind::POW_ASSIGN),
+        TokenPattern::new(r"^\&=", TokenKind::AND_ASSIGN),
+        TokenPattern::new(r"^\|=", TokenKind::OR_ASSIGN),
+        TokenPattern::new(r"^\^=", TokenKind::XOR_ASSIGN),
+        TokenPattern::new(r"^\*\*", TokenKind::POW),
+        TokenPattern::new(r"^\->", TokenKind::RETURNS_OP),
+        // single operators
+        TokenPattern::new(r"^=", TokenKind::ASSIGN),
+        TokenPattern::new(r"^\+", TokenKind::ADD),
+        TokenPattern::new(r"^\-", TokenKind::SUB),
+        TokenPattern::new(r"^\/", TokenKind::DIV),
+        TokenPattern::new(r"^\*", TokenKind::MUL),
+        TokenPattern::new(r"^\%", TokenKind::MOD),
+        TokenPattern::new(r"^\&", TokenKind::AND),
+        TokenPattern::new(r"^\|", TokenKind::OR),
+        TokenPattern::new(r"^\^", TokenKind::XOR),
+        TokenPattern::new(r"^\!", TokenKind::NOT),
+        TokenPattern::new(r"^>", TokenKind::GREATER),
+        TokenPattern::new(r"^<", TokenKind::LESS),
+        // parenthesis
+        TokenPattern::new(r"^\[", TokenKind::L_BRACKET),
+        TokenPattern::new(r"^\]", TokenKind::R_BRACKET),
+        TokenPattern::new(r"^\{", TokenKind::L_CURLY),
+        TokenPattern::new(r"^\}", TokenKind::R_CURLY),
+        TokenPattern::new(r"^\(", TokenKind::L_PAREN),
+        TokenPattern::new(r"^\)", TokenKind::R_PAREN),
+        TokenPattern::new(r"^<", TokenKind::L_CARET),
+        TokenPattern::new(r"^>", TokenKind::R_CARET),
+        // punctuation
+        TokenPattern::new(r"^,", TokenKind::COMMA),
+        TokenPattern::new(r"^\.", TokenKind::DOT),
+        TokenPattern::new(r"^:", TokenKind::COLON),
+        TokenPattern::new(r"^;", TokenKind::SEMICOLON),
+        TokenPattern::new(r"^\s+", TokenKind::WHITESPACE),
+    ]
+}
+
+#[derive(Debug)]
+pub struct Token {
+    pub kind: TokenKind,
+    pub span: Range<usize>,
+}
+
+impl Display for Token {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}: {:?}", self.kind, self.span)
+    }
+}
+
+impl Token {
+    pub fn new(kind: TokenKind, span: Range<usize>) -> Self {
+        Self { kind, span }
+    }
+}
+
 #[derive(Debug, Copy, Clone, PartialEq)]
+#[repr(u16)]
 pub enum TokenKind {
     // keywords
-    From,
-    Import,
-    Const,
-    Var,
-    Return,
-    If,
-    Else,
-    ElseIf,
-    Match,
-    While,
-    For,
-    Fn,
-    Struct,
-    Enum,
-    Ident,
+    FROM_KEYWORD,
+    IMPORT_KEYWORD,
+    CONST_KEYWORD,
+    VAR_KEYWORD,
+    RETURN_KEYWORD,
+    IF_KEYWORD,
+    ELSE_KEYWORD,
+    ELSEIF_KEYWORD,
+    MATCH_KEYWORD,
+    WHILE_KEYWORD,
+    FOR_KEYWORD,
+    FN_KEYWORD,
+    STRUCT_KEYWORD,
+    ENUM_KEYWORD,
+
+    IDENTIFIER,
 
     // literals
-    Comment,
-    StringLit,
-    FloatLit,
-    IntLit,
+    COMMENT,
+    STRING_LITERAL,
+    FLOAT_LITERAL,
+    INT_LITERAL,
 
     // logical operators
-    And,        // &
-    Or,         // |
-    Xor,        // ^
-    Not,        // !
-    Eq,         // ==
-    NotEq,      // !=
-    Greater,    // >
-    Less,       // <
-    GreaterEq,  // >=
-    LessEq,     // <=
+    AND,        // &
+    OR,         // |
+    XOR,        // ^
+    NOT,        // !
+    EQ,         // ==
+    NOT_EQ,     // !=
+    GREATER,    // >
+    LESS,       // <
+    GREATER_EQ, // >=
+    LESS_EQ,    // <=
 
     // arithmetic operators
-    Pow,
-    Add,
-    Sub,
-    Div,
-    Mul,
-    Mod,
+    POW,
+    ADD,
+    SUB,
+    DIV,
+    MUL,
+    MOD,
 
     // assignment operators
-    Assign,     // =
-    AddAssign,  // +=
-    SubAssign,  // -=
-    DivAssign,  // /=
-    MulAssign, // *=
-    ModAssign,  // %=
-    PowAssign,  // **=
-    AndAssign, // &=
-    OrAssign,   // |=
-    XorAssign,  // ^=
+    ASSIGN,     // =
+    ADD_ASSIGN, // +=
+    SUB_ASSIGN, // -=
+    DIV_ASSIGN, // /=
+    MUL_ASSIGN, // *=
+    MOD_ASSIGN, // %=
+    POW_ASSIGN, // **=
+    AND_ASSIGN, // &=
+    OR_ASSIGN,  // |=
+    XOR_ASSIGN, // ^=
 
     // misc operators
-    ReturnsOp,  // ->
+    RETURNS_OP, // ->
 
     // parenthesis
-    BrackL,
-    BrackR,
-    CurlyL,
-    CurlyR,
-    ParenL,
-    ParenR,
-    CaretL,
-    CaretR,
+    L_BRACKET,
+    R_BRACKET,
+    L_CURLY,
+    R_CURLY,
+    L_PAREN,
+    R_PAREN,
+    L_CARET,
+    R_CARET,
 
     // punctuation
-    Comma,  // ,
-    Dot,    // .
-    Colon,  // :
-    Semicolon, // ;
+    COMMA,     // ,
+    DOT,       // .
+    COLON,     // :
+    SEMICOLON, // ;
 
     // misc
-    WhiteSpace,
-    EOF
+    WHITESPACE,
+    EOF,
 }
