@@ -1,0 +1,19 @@
+struct MyStruct {
+    field1: i32,
+    field2: f64,
+    
+    fn new() -> Self {
+        Self {0,0}
+    }
+}
+
+fn my_func(param1: f64, _unused: bool) -> MyStruct {
+    if param1 >= 35.0 {
+        const a: i32 = 34;
+        var b: f64 = 0;
+        b += param1;
+        return MyStruct{b, param1};
+    } else {
+        return MyStruct::new();
+    }
+}
